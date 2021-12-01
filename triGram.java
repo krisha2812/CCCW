@@ -68,9 +68,10 @@ public class triGram {
 
 	
   public static void main(String[] args) throws Exception {
+    
     Configuration conf = new Configuration();
 
-    // 			creating configuration for first job and compressing the map output
+    // creating configuration for first job and compressing the map output
     Job job = Job.getInstance(conf, "tri-gram");
     conf.set("mapreduce.input.fileinputformat.split.maxsize","134211778L");
     job.setInputFormatClass(CombineTextInputFormat.class);	  
@@ -82,8 +83,8 @@ public class triGram {
 	  
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
-//    job.setNumReduceTasks(1);
- //  job.setInputFormatClass(Converger.class);
+    // job.setNumReduceTasks(1);
+    // job.setInputFormatClass(Converger.class);
 	  
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(IntWritable.class);
