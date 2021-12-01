@@ -10,11 +10,16 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import java.util.*;
 import java.io.*;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.io.WritableUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
 
 public class triGram {
 
@@ -31,18 +36,18 @@ public class triGram {
         for (int i=0; i<words.length-2; i++){
             ngram.set(words[i] + " " + words[i+1] + " " + words[i+2]);
             context.write(ngram, one);
-        }
-    
-       /* StringTokenizer itr = new StringTokenizer(value.toString().replaceAll("[^a-zA-Z ]", " "));
-        while (itr.hasMoreTokens()) {
-	     word.set(itr.nextToken());
-         context.write(word, one); */
-      
+	}
     }
   }
 
-
-
+ /* public class Converger extends CombineFileInputFormat
+  {
+	public Converger()
+	{
+	// setting block size to 128mb which is the Cloudera default HDFS size
+	this.setMaxSplitSize(134217728L);
+	}
+  }	*/
 
   public static class NGReducer extends Reducer<Text,IntWritable,Text,IntWritable> {
 
@@ -57,16 +62,32 @@ public class triGram {
       context.write(key, result);
     }
   }
+	
 
+	
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
+
     // 			creating configuration for first job and compressing the map output
     Job job = Job.getInstance(conf, "tri-gram");
+    conf.set("mapreduce.input.fileinputformat.split.maxsize","134211778L");
+    job.setInputFormatClass(CombineTextInputFormat.class);	  
+	  
     job.setJarByClass(triGram.class);
     job.setMapperClass(NGMapper.class);
+    job.setCombinerClass(NGReducer.class);
     job.setReducerClass(NGReducer.class);
+	  
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
+//    job.setNumReduceTasks(1);
+ //  job.setInputFormatClass(Converger.class);
+	  
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IntWritable.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+	  
     FileInputFormat.addInputPath(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[1]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
