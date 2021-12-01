@@ -20,6 +20,8 @@ import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+//Google Storage path to input directory: gs://cccw-1/coc105-gutenburg-10000books/
+//Google Storage path to output directory: gs://cccw-1/output/
 
 public class triGram {
 
